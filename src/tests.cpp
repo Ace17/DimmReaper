@@ -21,8 +21,6 @@
 
 namespace
 {
-using ul = unsigned long;
-
 // random generator
 uint32_t lcg_parkmiller()
 {
