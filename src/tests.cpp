@@ -71,7 +71,10 @@ int compare_regions(ulv* bufa, ulv* bufb, size_t count)
     if(*p1 != *p2)
     {
       char msg[256];
-      sprintf(msg, "0x%08lx != 0x%08lx at offset 0x%08lx.", *p1, *p2, (ul)(i * sizeof(ul)));
+      sprintf(msg, "0x%08llx != 0x%08llx at offset 0x%08llx.",
+              (unsigned long long)*p1,
+              (unsigned long long)*p2,
+              (unsigned long long)(i * sizeof(ul)));
       reportError(msg);
 
       r = -1;
@@ -104,8 +107,8 @@ int test_stuck_address(ulv* bufa, size_t count)
         char msg[256];
         sprintf(msg,
                 "FAILURE: possible bad address line at offset "
-                "0x%08lx.\n",
-                (ul)(i * sizeof(ul)));
+                "0x%08llx.\n",
+                (unsigned long long)(i * sizeof(ul)));
         reportError(msg);
 
         return -1;
