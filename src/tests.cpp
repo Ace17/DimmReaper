@@ -73,9 +73,7 @@ int compare_regions(ulv* bufa, ulv* bufb, size_t count)
     if(*p1 != *p2)
     {
       char msg[256];
-      sprintf(msg,
-              "0x%08lx != 0x%08lx at offset 0x%08lx.",
-              (ul) * p1, (ul) * p2, (ul)(i * sizeof(ul)));
+      sprintf(msg, "0x%08lx != 0x%08lx at offset 0x%08lx.", *p1, *p2, (ul)(i * sizeof(ul)));
       reportError(msg);
 
       r = -1;
