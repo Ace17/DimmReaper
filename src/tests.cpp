@@ -22,6 +22,14 @@
 
 namespace
 {
+using TestFunc = int (*)(ulv* bufa, ulv* bufb, size_t count);
+struct TestDesc
+{
+  const char* desc;
+  TestFunc func;
+  TestDesc* next = nullptr;
+};
+
 // random generator
 uint32_t lcg_parkmiller()
 {
@@ -120,7 +128,32 @@ int test_stuck_address(ulv* bufa, size_t count)
   return 0;
 }
 
-int test_random_value(ulv* bufa, ulv* bufb, size_t count)
+TestDesc* g_FirstTest;
+
+int registerTest(TestFunc func, const char* desc, TestDesc& test)
+{
+  test.func = func;
+  test.desc = desc;
+  test.next = g_FirstTest;
+  g_FirstTest = &test;
+  return 0;
+}
+
+#define MemTestLine(desc, line) \
+  static int test_ ## line(ulv * bufa, ulv * bufb, size_t count); \
+  static TestDesc test_ ## line ## _registration; \
+  static int test_ ## line ## _registered = registerTest(&test_ ## line, desc, test_ ## line ## _registration); \
+  static int test_ ## line(ulv * bufa, ulv * bufb, size_t count)
+
+#define MemTestLine2(desc, line) \
+  MemTestLine(desc, line)
+
+#define MemTest(desc) \
+  MemTestLine2(desc, __LINE__)
+
+///////////////////////////////////////////////////////////////////////////////
+
+MemTest("Random Value")
 {
   ulv* p1 = bufa;
   ulv* p2 = bufb;
@@ -133,7 +166,7 @@ int test_random_value(ulv* bufa, ulv* bufb, size_t count)
   return compare_regions(bufa, bufb, count);
 }
 
-int test_xor_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Compare XOR")
 {
   ulv* p1 = bufa;
   ulv* p2 = bufb;
@@ -148,7 +181,7 @@ int test_xor_comparison(ulv* bufa, ulv* bufb, size_t count)
   return compare_regions(bufa, bufb, count);
 }
 
-int test_sub_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Compare SUB")
 {
   ulv* p1 = bufa;
   ulv* p2 = bufb;
@@ -163,7 +196,7 @@ int test_sub_comparison(ulv* bufa, ulv* bufb, size_t count)
   return compare_regions(bufa, bufb, count);
 }
 
-int test_mul_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Compare MUL")
 {
   ulv* p1 = bufa;
   ulv* p2 = bufb;
@@ -178,7 +211,7 @@ int test_mul_comparison(ulv* bufa, ulv* bufb, size_t count)
   return compare_regions(bufa, bufb, count);
 }
 
-int test_div_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Compare DIV")
 {
   ulv* p1 = bufa;
   ulv* p2 = bufb;
@@ -198,7 +231,7 @@ int test_div_comparison(ulv* bufa, ulv* bufb, size_t count)
   return compare_regions(bufa, bufb, count);
 }
 
-int test_or_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Compare OR")
 {
   ulv* p1 = bufa;
   ulv* p2 = bufb;
@@ -213,7 +246,7 @@ int test_or_comparison(ulv* bufa, ulv* bufb, size_t count)
   return compare_regions(bufa, bufb, count);
 }
 
-int test_and_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Compare AND")
 {
   ulv* p1 = bufa;
   ulv* p2 = bufb;
@@ -228,7 +261,7 @@ int test_and_comparison(ulv* bufa, ulv* bufb, size_t count)
   return compare_regions(bufa, bufb, count);
 }
 
-int test_seqinc_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Sequential Increment")
 {
   ulv* p1 = bufa;
   ulv* p2 = bufb;
@@ -242,7 +275,7 @@ int test_seqinc_comparison(ulv* bufa, ulv* bufb, size_t count)
   return compare_regions(bufa, bufb, count);
 }
 
-int test_solidbits_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Solid Bits")
 {
   for(int j = 0; j < 64; j++)
   {
@@ -265,7 +298,7 @@ int test_solidbits_comparison(ulv* bufa, ulv* bufb, size_t count)
   return 0;
 }
 
-int test_checkerboard_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Checkerboard")
 {
   static constexpr auto CHECKERBOARD1 = MakeUnsignedLongFromByte(0x55);
   static constexpr auto CHECKERBOARD2 = MakeUnsignedLongFromByte(0xAA);
@@ -290,7 +323,7 @@ int test_checkerboard_comparison(ulv* bufa, ulv* bufb, size_t count)
   return 0;
 }
 
-int test_blockseq_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Block Sequential")
 {
   for(int j = 0; j < 256; j++)
   {
@@ -311,7 +344,7 @@ int test_blockseq_comparison(ulv* bufa, ulv* bufb, size_t count)
   return 0;
 }
 
-int test_walkbits0_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Walking Zeroes")
 {
   for(int j = 0; j < UL_LEN * 2; j++)
   {
@@ -339,7 +372,7 @@ int test_walkbits0_comparison(ulv* bufa, ulv* bufb, size_t count)
   return 0;
 }
 
-int test_walkbits1_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Walking Ones")
 {
   for(int j = 0; j < UL_LEN * 2; j++)
   {
@@ -367,7 +400,7 @@ int test_walkbits1_comparison(ulv* bufa, ulv* bufb, size_t count)
   return 0;
 }
 
-int test_bitspread_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Bit Spread")
 {
   for(int j = 0; j < UL_LEN * 2; j++)
   {
@@ -401,7 +434,7 @@ int test_bitspread_comparison(ulv* bufa, ulv* bufb, size_t count)
   return 0;
 }
 
-int test_bitflip_comparison(ulv* bufa, ulv* bufb, size_t count)
+MemTest("Bit Flip")
 {
   for(int k = 0; k < UL_LEN; k++)
   {
@@ -427,38 +460,19 @@ int test_bitflip_comparison(ulv* bufa, ulv* bufb, size_t count)
 
   return 0;
 }
-
-struct test
-{
-  const char* name;
-  int (* fp)(ulv* bufa, ulv* bufb, size_t count);
-};
 }
 
 void runAllTests(ulv* buf1, ulv* buf2, size_t elementCount)
 {
-  const test tests[] = {
-    { "Random Value", test_random_value },
-    { "Compare XOR", test_xor_comparison },
-    { "Compare SUB", test_sub_comparison },
-    { "Compare MUL", test_mul_comparison },
-    { "Compare DIV", test_div_comparison },
-    { "Compare OR", test_or_comparison },
-    { "Compare AND", test_and_comparison },
-    { "Sequential Increment", test_seqinc_comparison },
-    { "Solid Bits", test_solidbits_comparison },
-    { "Block Sequential", test_blockseq_comparison },
-    { "Checkerboard", test_checkerboard_comparison },
-    { "Bit Spread", test_bitspread_comparison },
-    { "Bit Flip", test_bitflip_comparison },
-    { "Walking Ones", test_walkbits1_comparison },
-    { "Walking Zeroes", test_walkbits0_comparison },
-  };
-
   test_stuck_address(buf1, elementCount);
   test_stuck_address(buf2, elementCount);
 
-  for(auto test: tests)
-    test.fp(buf1, buf2, elementCount);
+  auto test = g_FirstTest;
+
+  while(test)
+  {
+    test->func(buf1, buf2, elementCount);
+    test = test->next;
+  }
 }
 
