@@ -5,6 +5,7 @@
  * Version 3 not publicly released.
  * Version 4 rewrite:
  * Copyright (C) 2004-2020 Charles Cazabon <charlesc-memtester@pyropus.ca>
+ * Copyright (C) 2021 - Sebastien Alaiwan
  * Licensed under the terms of the GNU General Public License version 2 (only).
  * See the file COPYING for details.
  *
