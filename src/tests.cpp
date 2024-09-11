@@ -115,7 +115,7 @@ int test_stuck_address(ulv* bufa, size_t count)
       {
         char msg[256];
         sprintf(msg,
-                "FAILURE: possible bad address line at offset "
+                "possible bad address line at offset "
                 "0x%08llx.\n",
                 (unsigned long long)(i * sizeof(ul)));
         reportError(msg);
