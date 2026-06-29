@@ -3,7 +3,7 @@ BIN?=bin
 all: $(BIN)/dimmreaper.exe
 
 CXXFLAGS?=
-CXXFLAGS+=-O3
+CXXFLAGS+=-Os
 
 LDFLAGS?=
 LDFLAGS+=-s
